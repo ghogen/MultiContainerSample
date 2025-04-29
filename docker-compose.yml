@@ -1,0 +1,26 @@
+services:
+  webfrontend1:
+     image: ${DOCKER_REGISTRY-}webfrontend1
+     depends_on:
+        mywebapi:
+          condition: service_healthy
+     build:
+        context: .
+        dockerfile: WebFrontEnd1/Dockerfile
+
+  mywebapi:
+     image: ${DOCKER_REGISTRY-}mywebapi
+     depends_on:
+        redis:
+          condition: service_started
+     healthcheck:
+        test: curl --fail http://mywebapi:8080/Counter || exit 1
+        interval: 20s
+        timeout: 20s
+        retries: 5
+     build:
+        context: .
+        dockerfile: MyWebAPI/Dockerfile
+
+  redis:
+     image: redis
